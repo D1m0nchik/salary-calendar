@@ -6,32 +6,47 @@
     <title>Зарплатний Календар ₴</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col justify-between antialiased">
+<body class="bg-gray-100 min-h-screen flex flex-col justify-between antialiased selection:bg-blue-200">
 
-    <header class="bg-blue-600 text-white p-4 text-center text-xl font-bold shadow-md sticky top-0 z-50">
+    <header class="bg-blue-600 text-white p-4 text-center text-xl font-bold shadow-md sticky top-0 z-40">
         Зарплатний Календар ₴
     </header>
 
-    <main class="flex-grow p-4 max-w-md w-full mx-auto space-y-4">
+    <main class="flex-grow p-4 max-w-md w-full mx-auto space-y-4 pb-24">
         
-        <div id="calendar-screen" class="hidden">
-            <div class="p-4 text-center text-gray-500 bg-white rounded-xl shadow-md">
-                <h2 class="text-xl font-bold text-gray-800 mb-2">Календар змін</h2>
-                <p class="text-sm">Інтерактивна сітка календаря знаходиться в розробці.</p>
+        <div id="calendar-screen" class="block space-y-4">
+            <div class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm">
+                <button id="btn-prev-month" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-bold transition-colors cursor-pointer">&lt;</button>
+                <h2 id="calendar-month-year" class="text-lg font-bold text-gray-800">Місяць Рік</h2>
+                <button id="btn-next-month" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-bold transition-colors cursor-pointer">&gt;</button>
+            </div>
+
+            <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-500 uppercase tracking-wider px-1">
+                <div>Пн</div><div>Вв</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Нд</div>
+            </div>
+
+            <div id="calendar-grid" class="grid grid-cols-7 gap-1.5"></div>
+
+            <div class="bg-white p-3 rounded-xl shadow-sm grid grid-cols-3 gap-2 text-xxs sm:text-xs text-gray-600">
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 bg-green-100 border border-green-300 rounded-full inline-block"></span> <span>Робота</span></div>
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 bg-gray-100 border border-gray-300 rounded-full inline-block"></span> <span>Вихідний</span></div>
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 bg-blue-100 border border-blue-300 rounded-full inline-block"></span> <span>Відпустка</span></div>
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded-full inline-block"></span> <span>Лікарняний</span></div>
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 bg-red-100 border border-red-300 rounded-full inline-block"></span> <span>Свято</span></div>
             </div>
         </div>
 
-        <div id="reports-screen" class="block bg-white p-4 rounded-xl shadow-md space-y-4">
+        <div id="reports-screen" class="hidden bg-white p-4 rounded-xl shadow-md space-y-4">
             <h2 class="text-xl font-bold text-gray-800 text-center">Фінансовий Звіт</h2>
             
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="block text-xs text-gray-500 font-medium mb-1">З (дата)</label>
-                    <input type="date" id="start-date" class="w-full border border-gray-300 p-2 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <input type="date" id="start-date" class="w-full border border-gray-300 p-2 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
                 </div>
                 <div>
                     <label class="block text-xs text-gray-500 font-medium mb-1">По (дата)</label>
-                    <input type="date" id="end-date" class="w-full border border-gray-300 p-2 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <input type="date" id="end-date" class="w-full border border-gray-300 p-2 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
                 </div>
             </div>
 
@@ -58,20 +73,69 @@
                 </div>
             </div>
         </div>
-
-        <div class="text-center pt-2">
-            <button id="btn-add-demo" class="w-full bg-green-500 text-white py-3 rounded-xl shadow-md hover:bg-green-600 active:scale-98 transition-all font-semibold text-base cursor-pointer">
-                + Додати тестову зміну на сьогодні
-            </button>
-        </div>
     </main>
 
-    <footer class="bg-white border-t border-gray-200 flex justify-around p-3 shadow-lg sticky bottom-0 z-50">
-        <button id="tab-calendar" class="flex flex-col items-center justify-center transition-colors text-gray-400 w-1/2 py-1 cursor-pointer">
+    <div id="modal-edit-shift" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-xs animate-fade-in">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl space-y-4 transform scale-100 transition-transform">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                <h3 id="modal-date-title" class="font-bold text-gray-800">Редагувати дату</h3>
+                <button id="modal-btn-close" class="text-gray-400 hover:text-gray-600 font-bold text-lg cursor-pointer">&times;</button>
+            </div>
+            
+            <form id="shift-form" class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Тип дня</label>
+                    <select id="form-day-type" class="w-full border border-gray-300 p-2 rounded-lg text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="OFF">Вихідний день</option>
+                        <option value="WORK">Робоча зміна</option>
+                        <option value="VACATION">Відпустка</option>
+                        <option value="SICK">Лікарняний</option>
+                        <option value="HOLIDAY">Свято</option>
+                    </select>
+                </div>
+
+                <div id="work-params-block" class="hidden space-y-3 border-t border-gray-50 pt-2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Початок зміна</label>
+                            <input type="time" id="form-start-time" class="w-full border border-gray-300 p-1.5 rounded-lg text-gray-700 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Кінець зміни</label>
+                            <input type="time" id="form-end-time" class="w-full border border-gray-300 p-1.5 rounded-lg text-gray-700 focus:outline-none" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Ставка (грн/год)</label>
+                            <input type="number" id="form-rate" min="0" class="w-full border border-gray-300 p-1.5 rounded-lg text-gray-700 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Премія / Бонус</label>
+                            <input type="number" id="form-bonus" min="0" class="w-full border border-gray-300 p-1.5 rounded-lg text-gray-700 focus:outline-none" />
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Нотатки</label>
+                    <input type="text" id="form-notes" placeholder="Опис чи назва об'єкту..." class="w-full border border-gray-300 p-2 rounded-lg text-gray-700 placeholder:text-gray-400 focus:outline-none" />
+                </div>
+
+                <div class="flex space-x-2 pt-2 border-t border-gray-100">
+                    <button type="button" id="modal-btn-delete" class="w-1/3 bg-red-100 hover:bg-red-200 text-red-600 font-bold py-2.5 rounded-xl transition-colors cursor-pointer">Скинути</button>
+                    <button type="submit" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition-colors shadow-md cursor-pointer">Зберегти</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-gray-200 flex justify-around p-3 shadow-lg fixed bottom-0 left-0 right-0 z-40">
+        <button id="tab-calendar" class="flex flex-col items-center justify-center text-blue-600 font-bold w-1/2 py-1 cursor-pointer">
             <span class="text-xl">📅</span>
             <span class="text-xs mt-1 font-medium">Календар</span>
         </button>
-        <button id="tab-reports" class="flex flex-col items-center justify-center transition-colors text-blue-600 font-bold w-1/2 py-1 cursor-pointer">
+        <button id="tab-reports" class="flex flex-col items-center justify-center text-gray-400 w-1/2 py-1 cursor-pointer">
             <span class="text-xl">📊</span>
             <span class="text-xs mt-1 font-medium">Звіти</span>
         </button>
